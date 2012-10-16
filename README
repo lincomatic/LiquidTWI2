@@ -6,7 +6,6 @@ A lean, high speed I2C LCD Library for Arduino, which supports MCP23008 and MCP2
 hacked by Sam C. Lin / http://www.lincomatic.com
 from 
   LiquidTWI by Matt Falcon (FalconFour) / http://falconfour.com
-  modified by Stephanie Maks / http://planetstephanie.net
   logic gleaned from Adafruit RGB LCD Shield library
 
 Compatible with Adafruit I2C LCD backpack (MCP23008) and
@@ -21,7 +20,6 @@ For more information see
   Changelog:
   * 1.0 / 20121016 SCL
   initial release
-  created from Stephanie Maks' v1.2 LiquidTWI as base code
 
   Distributed with as free-will a license as is available given this code's long
   associative chain of licenses (LiquidCrystal -> Arduino -> Wiring -> ...?). Use

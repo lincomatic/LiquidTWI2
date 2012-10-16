@@ -2,3 +2,81 @@ LiquidTWI2
 ==========
 
 A lean, high speed I2C LCD Library for Arduino, which supports MCP23008 and MCP23017
+
+hacked by Sam C. Lin / http://www.lincomatic.com
+from 
+  LiquidTWI by Matt Falcon (FalconFour) / http://falconfour.com
+  modified by Stephanie Maks / http://planetstephanie.net
+  logic gleaned from Adafruit RGB LCD Shield library
+
+Compatible with Adafruit I2C LCD backpack (MCP23008) and
+Adafruit RGB LCD Shield
+
+For more information see 
+ http://blog.lincomatic.com/?tag=LiquidTWI2
+ http://forums.adafruit.com/viewtopic.php?f=19&t=21586
+
+  Version 1.0
+
+  Changelog:
+  * 1.0 / 20121016 SCL
+  initial release
+  created from Stephanie Maks' v1.2 LiquidTWI as base code
+
+  Distributed with as free-will a license as is available given this code's long
+  associative chain of licenses (LiquidCrystal -> Arduino -> Wiring -> ...?). Use
+  it in any way you feel fit, profit or free, provided it fits in the licenses of
+  its associated works.
+
+  Installation:
+  extract LiquidTWI2/ into <arduinosketchbook>/libraries/LiquidTWI2
+
+  Usage:
+  Compatible with Arduino LiquidCrystal library except that setMCPType() MUST
+  be called at least once before begin() is called
+
+  // MCP23008 (Adafruit LCD Backpack)
+  #include <Wire.h>
+  #include <LiquidTWI2.h>
+  LiquidTWI2 lcd(0);
+  void setup() {
+   lcd.setMCPType(MCP23008); // must be called before begin()
+   lcd.begin(16,2);
+   lcd.setBacklight(HIGH); // only supports HIGH or LOW
+  }
+  void loop() {
+   lcd.print("Hello World!");
+   delay(500);
+   lcd.clear();
+   delay(500);
+  }
+
+  // MCP23017 (Adafruit LCD Backpack)
+  #include <Wire.h>
+  #include <LiquidTWI2.h>
+  LiquidTWI2 lcd(0);
+  void setup() {
+   lcd.setMCPType(MCP23017); // must be called before begin()
+   lcd.begin(16,2);
+   lcd.setBacklight(WHITE); // see LiquidTWI2.h for color options
+  }
+  void loop() {
+   lcd.print("Hello World!");
+   delay(500);
+   lcd.clear();
+   delay(500);
+   uint8_t btns = readButtons();
+  }
+
+  If you change the i2c address of the board, set "lcd(0)" to your new 3-bit
+  address.
+  If you have more than a 16x2 LCD, change "lcd.begin(16,2)" to reflect the
+  columns and rows of your LCD.
+
+  Note that the library can switch modes at runtime. Simply call setMCPType(),
+  followed by begin().
+  This allows you to create a firmware which is compatible with either kind
+  of LCD module, and select the type from EEPROM.
+
+  For memory-constrained projects, disable the unnecessary support by
+  commenting out the corresponding LTI_TYPE_MCP230xx in LiquidTWI2.h

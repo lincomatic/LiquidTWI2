@@ -38,7 +38,7 @@ For more information see
   #include <LiquidTWI2.h>
   LiquidTWI2 lcd(0);
   void setup() {
-   lcd.setMCPType(MCP23008); // must be called before begin()
+   lcd.setMCPType(LTI_TYPE_MCP23008); // must be called before begin()
    lcd.begin(16,2);
    lcd.setBacklight(HIGH); // only supports HIGH or LOW
   }
@@ -54,7 +54,7 @@ For more information see
   #include <LiquidTWI2.h>
   LiquidTWI2 lcd(0);
   void setup() {
-   lcd.setMCPType(MCP23017); // must be called before begin()
+   lcd.setMCPType(LTI_TYPE_MCP23017); // must be called before begin()
    lcd.begin(16,2);
    lcd.setBacklight(WHITE); // see LiquidTWI2.h for color options
   }

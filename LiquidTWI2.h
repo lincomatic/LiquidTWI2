@@ -156,9 +156,11 @@ private:
 	void send(uint8_t, uint8_t);
 #ifdef MCP23017
 	void burstBits16(uint16_t);
+	void burstBits8b(uint8_t);
+	//	void burstBits8a(uint8_t);
 #endif
 #ifdef MCP23008
-	void burstBits(uint8_t);
+	void burstBits8(uint8_t);
 #endif
 
 	uint8_t _displayfunction;

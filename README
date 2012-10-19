@@ -15,10 +15,14 @@ For more information see
  http://blog.lincomatic.com/?tag=LiquidTWI2
  http://forums.adafruit.com/viewtopic.php?f=19&t=21586
 
-  Version 1.0
+  Version 1.1.0
 
   Changelog:
-  * 1.0 / 20121016 SCL
+  * 1.1.0 / 20121018 SCL
+  use 8-bit GPIO for writing on MCP23017 for 25% speed increase
+  with only 14 byte size increase
+
+  * 1.0.0 / 20121016 SCL
   initial release
 
   Distributed with as free-will a license as is available given this code's long

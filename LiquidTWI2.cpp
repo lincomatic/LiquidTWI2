@@ -196,11 +196,11 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
     //  15 14 13 12 11 10 9  8  7  6  5  4  3  2  1  0  
     //  RS RW EN D4 D5 D6 D7 B  G  R     B4 B3 B2 B1 B0 
     for (uint8_t i=0;i < 3;i++) {
-      burstBits16(M17_BIT_EN|M17_BIT_D5|M17_BIT_D4|_backlightBits);
-      burstBits16(M17_BIT_D5|M17_BIT_D4|_backlightBits);
+      burstBits8b((M17_BIT_EN|M17_BIT_D5|M17_BIT_D4) >> 8);
+      burstBits8b((M17_BIT_D5|M17_BIT_D4) >> 8);
     }
-    burstBits16(M17_BIT_EN|M17_BIT_D5|_backlightBits);
-    burstBits16(M17_BIT_D5|_backlightBits);
+    burstBits8b((M17_BIT_EN|M17_BIT_D5) >> 8);
+    burstBits8b(M17_BIT_D5 >> 8);
 #endif // MCP23017
 #if defined(MCP23017)&&defined(MCP23008)
   }
@@ -212,14 +212,14 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
     //  7   6   5   4   3   2   1   0
     // LT  D7  D6  D5  D4  EN  RS  n/c
     //-----
-    burstBits(B10011100); // send LITE D4 D5 high with enable
-    burstBits(B10011000); // send LITE D4 D5 high with !enable
-    burstBits(B10011100); //
-    burstBits(B10011000); //
-    burstBits(B10011100); // repeat twice more
-    burstBits(B10011000); //
-    burstBits(B10010100); // send D4 low and LITE D5 high with enable
-    burstBits(B10010000); // send D4 low and LITE D5 high with !enable
+    burstBits8(B10011100); // send LITE D4 D5 high with enable
+    burstBits8(B10011000); // send LITE D4 D5 high with !enable
+    burstBits8(B10011100); //
+    burstBits8(B10011000); //
+    burstBits8(B10011100); // repeat twice more
+    burstBits8(B10011000); //
+    burstBits8(B10010100); // send D4 low and LITE D5 high with enable
+    burstBits8(B10010000); // send D4 low and LITE D5 high with !enable
 #endif // MCP23008
 #if defined(MCP23017)&&defined(MCP23008)
   }
@@ -382,7 +382,7 @@ void LiquidTWI2::setBacklight(uint8_t status) {
 #endif
 #ifdef MCP23008
     bitWrite(_displaycontrol,3,status); // flag that the backlight is enabled, for burst commands
-    burstBits((_displaycontrol & LCD_BACKLIGHT)?0x80:0x00);
+    burstBits8((_displaycontrol & LCD_BACKLIGHT)?0x80:0x00);
 #endif // MCP23008
 #if defined(MCP23017)&&defined(MCP23008)
   }
@@ -402,38 +402,38 @@ void LiquidTWI2::send(uint8_t value, uint8_t mode) {
     //  RS RW EN D4 D5 D6 D7 B  G  R     B4 B3 B2 B1 B0 
     
     // n.b. RW bit stays LOW to write
-    uint16_t buf = _backlightBits;
+    uint8_t buf = _backlightBits >> 8;
     // send high 4 bits
-    if (value & 0x10) buf |= M17_BIT_D4;
-    if (value & 0x20) buf |= M17_BIT_D5;
-    if (value & 0x40) buf |= M17_BIT_D6;
-    if (value & 0x80) buf |= M17_BIT_D7;
+    if (value & 0x10) buf |= M17_BIT_D4 >> 8;
+    if (value & 0x20) buf |= M17_BIT_D5 >> 8;
+    if (value & 0x40) buf |= M17_BIT_D6 >> 8;
+    if (value & 0x80) buf |= M17_BIT_D7 >> 8;
     
-    if (mode) buf |= M17_BIT_RS|M17_BIT_EN; // RS+EN
-    else buf |= M17_BIT_EN; // EN
+    if (mode) buf |= (M17_BIT_RS|M17_BIT_EN) >> 8; // RS+EN
+    else buf |= M17_BIT_EN >> 8; // EN
 
-    burstBits16(buf);
+    burstBits8b(buf);
 
     // resend w/ EN turned off
-    buf &= ~M17_BIT_EN;
-    burstBits16(buf);
+    buf &= ~(M17_BIT_EN >> 8);
+    burstBits8b(buf);
     
     // send low 4 bits
-    buf = _backlightBits;
+    buf = _backlightBits >> 8;
     // send high 4 bits
-    if (value & 0x01) buf |= M17_BIT_D4;
-    if (value & 0x02) buf |= M17_BIT_D5;
-    if (value & 0x04) buf |= M17_BIT_D6;
-    if (value & 0x08) buf |= M17_BIT_D7;
+    if (value & 0x01) buf |= M17_BIT_D4 >> 8;
+    if (value & 0x02) buf |= M17_BIT_D5 >> 8;
+    if (value & 0x04) buf |= M17_BIT_D6 >> 8;
+    if (value & 0x08) buf |= M17_BIT_D7 >> 8;
     
-    if (mode) buf |= M17_BIT_RS|M17_BIT_EN; // RS+EN
-    else buf |= M17_BIT_EN; // EN
+    if (mode) buf |= (M17_BIT_RS|M17_BIT_EN) >> 8; // RS+EN
+    else buf |= M17_BIT_EN >> 8; // EN
     
-    burstBits16(buf);
+    burstBits8b(buf);
     
     // resend w/ EN turned off
-    buf &= ~M17_BIT_EN;
-    burstBits16(buf);
+    buf &= ~(M17_BIT_EN >> 8);
+    burstBits8b(buf);
 #endif // MCP23017
 #if defined(MCP23017)&&defined(MCP23008)
   }
@@ -454,18 +454,18 @@ void LiquidTWI2::send(uint8_t value, uint8_t mode) {
     if (mode) buf |= 3 << 1; // here we can just enable enable, since the value is immediately written to the pins
     else buf |= 2 << 1; // if RS (mode), turn RS and enable on. otherwise, just enable. (bits 2-1: xxxxx11x)
     buf |= (_displaycontrol & LCD_BACKLIGHT)?0x80:0x00; // using DISPLAYCONTROL command to mask backlight bit in _displaycontrol
-    burstBits(buf); // bits are now present at LCD with enable active in the same write
+    burstBits8(buf); // bits are now present at LCD with enable active in the same write
     // no need to delay since these things take WAY, WAY longer than the time required for enable to settle (1us in LCD implementation?)
     buf &= ~(1<<2); // toggle enable low
-    burstBits(buf); // send out the same bits but with enable low now; LCD crunches these 4 bits.
+    burstBits8(buf); // send out the same bits but with enable low now; LCD crunches these 4 bits.
     // crunch the low 4 bits
     buf = (value & B1111) << 3; // isolate low 4 bits, shift over to data pins (bits 6-3: x1111xxx)
     if (mode) buf |= 3 << 1; // here we can just enable enable, since the value is immediately written to the pins
     else buf |= 2 << 1; // if RS (mode), turn RS and enable on. otherwise, just enable. (bits 2-1: xxxxx11x)
     buf |= (_displaycontrol & LCD_BACKLIGHT)?0x80:0x00; // using DISPLAYCONTROL command to mask backlight bit in _displaycontrol
-    burstBits(buf);
+    burstBits8(buf);
     buf &= ~( 1 << 2 ); // toggle enable low (1<<2 = 00000100; NOT = 11111011; with "and", this turns off only that one bit)
-    burstBits(buf);
+    burstBits8(buf);
 #endif // MCP23008
 #if defined(MCP23017)&&defined(MCP23008)
   }
@@ -482,10 +482,26 @@ void LiquidTWI2::burstBits16(uint16_t value) {
   wiresend(value >> 8);   // send B bits
   while(Wire.endTransmission());
 }
-#endif // MCP23017
 
+/*
+void LiquidTWI2::burstBits8a(uint8_t value) {
+  // we use this to burst bits to the GPIO chip whenever we need to. avoids repetative code.
+  Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
+  wiresend(MCP23017_GPIOA);
+  wiresend(value); // last bits are crunched, we're done.
+  while(Wire.endTransmission());
+}
+*/
+void LiquidTWI2::burstBits8b(uint8_t value) {
+  // we use this to burst bits to the GPIO chip whenever we need to. avoids repetative code.
+  Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
+  wiresend(MCP23017_GPIOB);
+  wiresend(value); // last bits are crunched, we're done.
+  while(Wire.endTransmission());
+}
+#endif // MCP23017
 #ifdef MCP23008
-void LiquidTWI2::burstBits(uint8_t value) {
+void LiquidTWI2::burstBits8(uint8_t value) {
   // we use this to burst bits to the GPIO chip whenever we need to. avoids repetative code.
   Wire.beginTransmission(MCP23008_ADDRESS | _i2cAddr);
   wiresend(MCP23008_GPIO);

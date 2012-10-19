@@ -475,7 +475,7 @@ void LiquidTWI2::send(uint8_t value, uint8_t mode) {
 #ifdef MCP23017
 // value byte order is BA
 void LiquidTWI2::burstBits16(uint16_t value) {
-  // we use this to burst bits to the GPIO chip whenever we need to. avoids repetative code.
+  // we use this to burst bits to the GPIO chip whenever we need to. avoids repetitive code.
   Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
   wiresend(MCP23017_GPIOA);
   wiresend(value & 0xFF); // send A bits
@@ -485,7 +485,7 @@ void LiquidTWI2::burstBits16(uint16_t value) {
 
 /*
 void LiquidTWI2::burstBits8a(uint8_t value) {
-  // we use this to burst bits to the GPIO chip whenever we need to. avoids repetative code.
+  // we use this to burst bits to the GPIO chip whenever we need to. avoids repetitive code.
   Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
   wiresend(MCP23017_GPIOA);
   wiresend(value); // last bits are crunched, we're done.
@@ -493,7 +493,7 @@ void LiquidTWI2::burstBits8a(uint8_t value) {
 }
 */
 void LiquidTWI2::burstBits8b(uint8_t value) {
-  // we use this to burst bits to the GPIO chip whenever we need to. avoids repetative code.
+  // we use this to burst bits to the GPIO chip whenever we need to. avoids repetitive code.
   Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
   wiresend(MCP23017_GPIOB);
   wiresend(value); // last bits are crunched, we're done.
@@ -502,7 +502,7 @@ void LiquidTWI2::burstBits8b(uint8_t value) {
 #endif // MCP23017
 #ifdef MCP23008
 void LiquidTWI2::burstBits8(uint8_t value) {
-  // we use this to burst bits to the GPIO chip whenever we need to. avoids repetative code.
+  // we use this to burst bits to the GPIO chip whenever we need to. avoids repetitive code.
   Wire.beginTransmission(MCP23008_ADDRESS | _i2cAddr);
   wiresend(MCP23008_GPIO);
   wiresend(value); // last bits are crunched, we're done.

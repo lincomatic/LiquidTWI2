@@ -6,6 +6,9 @@
 
 // for memory-constrained projects, comment out the MCP230xx that doesn't apply
 #define MCP23017 // Adafruit RGB LCD
+#ifdef MCP23017
+  #define PANELOLU2 //only possible with the MCP23017 defined. Comment out if not using PANELOLU2
+#endif
 #define MCP23008 // Adafruit I2C Backpack
 
 // for setBacklight() with MCP23017
@@ -23,6 +26,12 @@
 #define BUTTON_LEFT 0x10
 #define BUTTON_RIGHT 0x02
 #define BUTTON_SELECT 0x01
+
+#ifdef PANELOLU2
+  #define ENCODER_C 0x04
+  #define ENCODER_B 0x02
+  #define ENCODER_A 0x01
+#endif
 
 
 #define MCP23008_ADDRESS 0x20
@@ -138,6 +147,14 @@ public:
 
 	void createChar(uint8_t, uint8_t[]);
 	void setCursor(uint8_t, uint8_t); 
+     #ifdef PANELOLU2
+	  //check registers
+       uint8_t readRegister(uint8_t);
+       //set registers
+       void setRegister(uint8_t, uint8_t);
+       //make some noise
+       void buzz(long,uint8_t);
+     #endif
 #if defined(ARDUINO) && (ARDUINO >= 100) // scl
 	virtual size_t write(uint8_t);
 #else
@@ -157,7 +174,7 @@ private:
 #ifdef MCP23017
 	void burstBits16(uint16_t);
 	void burstBits8b(uint8_t);
-	//	void burstBits8a(uint8_t);
+	//void burstBits8a(uint8_t);
 #endif
 #ifdef MCP23008
 	void burstBits8(uint8_t);

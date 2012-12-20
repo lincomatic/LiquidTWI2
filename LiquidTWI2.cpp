@@ -5,8 +5,8 @@
   hacked by Sam C. Lin / http://www.lincomatic.com
   from 
    LiquidTWI by Matt Falcon (FalconFour) / http://falconfour.com
-   modified by Stephanie Maks / http://planetstephanie.net
    logic gleaned from Adafruit RGB LCD Shield library
+   Panelolu2 support by Tony Lock / http://blog.think3dprint3d.com
 
   Compatible with Adafruit I2C LCD backpack (MCP23008) and
   Adafruit RGB LCD Shield
@@ -39,6 +39,9 @@
 #define M17_BIT_LB 0x0100
 #define M17_BIT_LG 0x0080
 #define M17_BIT_LR 0x0040
+#ifdef PANELOLU2
+  #define M17_BIT_BZ 0x0020 //Added a buzzer on this pin
+#endif
 #define M17_BIT_B4 0x0010
 #define M17_BIT_B3 0x0008
 #define M17_BIT_B2 0x0004
@@ -358,7 +361,11 @@ uint8_t LiquidTWI2::readButtons(void) {
   Wire.endTransmission();
   
   Wire.requestFrom(MCP23017_ADDRESS | _i2cAddr, 1);
+  #ifdef PANELOLU2
+     return ~wirerecv() & (uint8_t)(M17_BIT_B2|M17_BIT_B1|M17_BIT_B0);
+  #else
   return ~wirerecv() & (uint8_t)(M17_BIT_B4|M17_BIT_B3|M17_BIT_B2|M17_BIT_B1|M17_BIT_B0);
+  #endif
 }
 #endif // MCP23017
 
@@ -509,3 +516,57 @@ void LiquidTWI2::burstBits8(uint8_t value) {
   while(Wire.endTransmission());
 }
 #endif // MCP23008
+
+
+
+//direct access to the registers for interrupt setting and reading, also the tone function using buzzer pin
+#ifdef PANELOLU2
+//check registers
+uint8_t LiquidTWI2::readRegister(uint8_t reg) {
+  // read a register
+  Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
+  wiresend(reg);	
+  Wire.endTransmission();
+  
+  Wire.requestFrom(MCP23017_ADDRESS | _i2cAddr, 1);
+  return wirerecv();
+}
+
+//set registers
+
+void LiquidTWI2::setRegister(uint8_t reg, uint8_t value) {
+    Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
+    wiresend(reg);
+    wiresend(value);
+    Wire.endTransmission();
+}
+
+//cycle the buzzer pin at a cetian frequency for a certain duration (ms) and at a certain freq (hz)
+void LiquidTWI2::buzz(long duration, uint8_t freq) {
+  int currentRegister = 0;
+  // read gpio register
+  Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
+  wiresend(MCP23017_GPIOA);	
+  Wire.endTransmission();
+  
+  Wire.requestFrom(MCP23017_ADDRESS | _i2cAddr, 1);
+  currentRegister = wirerecv();
+  duration *=1000; //convert from ms to us
+  int period = (1.0 / freq) * 1000000; //*1000000 as the delay is in us
+  long elapsed_time = 0;
+  while (elapsed_time < duration)
+  {
+        Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
+        wiresend(MCP23017_GPIOA);
+        wiresend(currentRegister |= M17_BIT_BZ);
+        while(Wire.endTransmission());
+        delayMicroseconds(period / 2);
+        Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
+        wiresend(MCP23017_GPIOA);
+        wiresend(currentRegister &= ~M17_BIT_BZ);
+        while(Wire.endTransmission());
+        elapsed_time += (period);
+   }
+}
+
+#endif PANELOLU2

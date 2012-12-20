@@ -7,6 +7,7 @@ hacked by Sam C. Lin / http://www.lincomatic.com
 from 
   LiquidTWI by Matt Falcon (FalconFour) / http://falconfour.com
   logic gleaned from Adafruit RGB LCD Shield library
+  Panelolu2 support by Tony Lock / http://blog.think3dprint3d.com
 
 Compatible with Adafruit I2C LCD backpack (MCP23008) and
 Adafruit RGB LCD Shield
@@ -14,10 +15,15 @@ Adafruit RGB LCD Shield
 For more information see 
  http://blog.lincomatic.com/?tag=LiquidTWI2
  http://forums.adafruit.com/viewtopic.php?f=19&t=21586
+ Panelolu2 usage see
+ http://blog.think3dprint3d.com/2012/12/mcp23017-i2c.html
 
-  Version 1.1.0
+  Version 1.1.1
 
   Changelog:
+  * 1.1.1 / 20121219 SCL
+  added Tony Lock's Panelolu2 enhancements
+
   * 1.1.0 / 20121018 SCL
   use 8-bit GPIO for writing on MCP23017 for 25% speed increase
   with only 14 byte size increase
@@ -32,6 +38,8 @@ For more information see
 
   Installation:
   extract LiquidTWI2/ into <arduinosketchbook>/libraries/LiquidTWI2
+
+  To use with Panelolu2, uncomment #define PANELOLU2 in LiquidTWI2.h
 
   Usage:
   Compatible with Arduino LiquidCrystal library except that setMCPType() MUST
@@ -81,4 +89,4 @@ For more information see
   of LCD module, and select the type from EEPROM.
 
   For memory-constrained projects, disable the unnecessary support by
-  commenting out the corresponding LTI_TYPE_MCP230xx in LiquidTWI2.h
+  commenting out the corresponding MCP230xx in LiquidTWI2.h

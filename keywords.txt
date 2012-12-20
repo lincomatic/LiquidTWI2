@@ -33,6 +33,9 @@ createChar	KEYWORD2
 setBacklight	KEYWORD2
 setMCPType      KEYWORD2
 readButtons     KEYWORD2
+setRegister	KEYWORD2
+buzz      KEYWORD2
+readRegister     KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################

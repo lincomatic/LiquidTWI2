@@ -76,7 +76,7 @@ For more information see
    delay(500);
    lcd.clear();
    delay(500);
-   uint8_t btns = readButtons();
+   uint8_t btns = lcd.readButtons();
   }
 
   If you change the i2c address of the board, set "lcd(0)" to your new 3-bit

@@ -1,7 +1,7 @@
 LiquidTWI2
 ==========
 
-A lean, high speed I2C LCD Library for Arduino, which supports MCP23008 and MCP23017
+A lean, high speed I2C LCD Library for Arduino, which supports MCP23008 (Adafruit LCD Backpack) and MCP23017 (Adafruit RGB LCD Shield)
 
 hacked by Sam C. Lin / http://www.lincomatic.com
 from 
@@ -40,6 +40,7 @@ For more information see
   extract LiquidTWI2/ into <arduinosketchbook>/libraries/LiquidTWI2
 
   To use with Panelolu2, uncomment #define PANELOLU2 in LiquidTWI2.h
+	lcd.setMCPType(LTI_TYPE_MCP23017);
 
   Usage:
   Compatible with Arduino LiquidCrystal library except that setMCPType() MUST
@@ -61,7 +62,7 @@ For more information see
    delay(500);
   }
 
-  // MCP23017 (Adafruit LCD Backpack)
+  // MCP23017 (Adafruit RGB LCD Shield)
   #include <Wire.h>
   #include <LiquidTWI2.h>
   LiquidTWI2 lcd(0);

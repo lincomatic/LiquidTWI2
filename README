@@ -21,6 +21,9 @@ For more information see
   Version 1.2.0
 
   Changelog:
+  * 1.2.1 / 20130102 SCL
+  disable PANELOLU2 by default
+
   * 1.2.0 / 20130101 SCL
   added DETECT_DEVICE
 

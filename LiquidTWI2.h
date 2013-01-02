@@ -7,7 +7,7 @@
 // for memory-constrained projects, comment out the MCP230xx that doesn't apply
 #define MCP23017 // Adafruit RGB LCD
 #ifdef MCP23017
-  #define PANELOLU2 //only possible with the MCP23017 defined. Comment out if not using PANELOLU2
+//  #define PANELOLU2 //only possible with the MCP23017 defined. Comment out if not using PANELOLU2
 #endif
 #define MCP23008 // Adafruit I2C Backpack
 

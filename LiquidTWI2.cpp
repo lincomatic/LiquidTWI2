@@ -93,7 +93,9 @@ static inline uint8_t wirerecv(void) {
 LiquidTWI2::LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice) {
   // if detectDevice != 0, set _deviceDetected to 2 to flag that we should
   // scan for it in begin()
+#ifdef DETECT_DEVICE
   _deviceDetected = detectDevice ? 2 : 1;
+#endif
 
   //  if (i2cAddr > 7) i2cAddr = 7;
   _i2cAddr = i2cAddr; // transfer this function call's number into our internal class state
@@ -186,6 +188,7 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
     _displayfunction |= LCD_5x10DOTS;
   }
 
+#ifdef DETECT_DEVICE
   if (_deviceDetected == 2) { // scan for device
     uint8_t junk;
     if (!twi_writeTo(_i2cAddr, &junk, 0, 1
@@ -200,7 +203,7 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
       return;
     }
   } 
-
+#endif // DETECT_DEVICE
 
 
   //put the LCD into 4 bit mode

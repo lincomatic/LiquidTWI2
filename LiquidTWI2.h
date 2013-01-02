@@ -11,6 +11,13 @@
 #endif
 #define MCP23008 // Adafruit I2C Backpack
 
+// if DETECT_DEVICE is enabled, then when constructor's detectDevice != 0
+// device will be detected in the begin() function...
+// if the device isn't detected in begin() then we won't try to talk to the
+// device in any of the other functions... this allows you to compile the
+// code w/o an LCD installed, and not get hung in the write functions
+#define DETECT_DEVICE // enable device detection code
+
 // for setBacklight() with MCP23017
 #define OFF 0x0
 #define RED 0x1
@@ -123,7 +130,7 @@
 
 class LiquidTWI2 : public Print {
 public:
-	LiquidTWI2(uint8_t i2cAddr);
+	LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice=0);
 
 	void begin(uint8_t cols, uint8_t rows,uint8_t charsize = LCD_5x8DOTS);
 
@@ -185,7 +192,9 @@ private:
 	uint8_t _displaymode;
 	uint8_t _numlines,_currline;
 	uint8_t _i2cAddr;
-
+#ifdef DETECT_DEVICE
+	uint8_t _deviceDetected;
+#endif // DETECT_DEVICE
 #ifdef MCP23017
 	uint16_t _backlightBits; // only for MCP23017
 #endif

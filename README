@@ -10,7 +10,7 @@ from
   Panelolu2 support by Tony Lock / http://blog.think3dprint3d.com
 
 Compatible with Adafruit I2C LCD backpack (MCP23008) and
-Adafruit RGB LCD Shield
+Adafruit RGB LCD Shield (and optionally, Panelolu2)
 
 For more information see 
  http://blog.lincomatic.com/?tag=LiquidTWI2
@@ -18,9 +18,12 @@ For more information see
  Panelolu2 usage see
  http://blog.think3dprint3d.com/2012/12/mcp23017-i2c.html
 
-  Version 1.1.1
+  Version 1.2.0
 
   Changelog:
+  * 1.2.0 / 20130101 SCL
+  added DETECT_DEVICE
+
   * 1.1.1 / 20121219 SCL
   added Tony Lock's Panelolu2 enhancements
 
@@ -49,7 +52,7 @@ For more information see
   // MCP23008 (Adafruit LCD Backpack)
   #include <Wire.h>
   #include <LiquidTWI2.h>
-  LiquidTWI2 lcd(0);
+  LiquidTWI2 lcd(0x20);
   void setup() {
    lcd.setMCPType(LTI_TYPE_MCP23008); // must be called before begin()
    lcd.begin(16,2);
@@ -65,7 +68,7 @@ For more information see
   // MCP23017 (Adafruit RGB LCD Shield)
   #include <Wire.h>
   #include <LiquidTWI2.h>
-  LiquidTWI2 lcd(0);
+  LiquidTWI2 lcd(0x20);
   void setup() {
    lcd.setMCPType(LTI_TYPE_MCP23017); // must be called before begin()
    lcd.begin(16,2);
@@ -79,10 +82,17 @@ For more information see
    uint8_t btns = lcd.readButtons();
   }
 
-  If you change the i2c address of the board, set "lcd(0)" to your new 3-bit
+  If you change the i2c address of the board, set "lcd(0x20)" to your new 3-bit
   address.
   If you have more than a 16x2 LCD, change "lcd.begin(16,2)" to reflect the
   columns and rows of your LCD.
+
+  Normally, the code will hang if the device is not detected at the specified
+  i2c address.  If you want to compile your code for an optionally installed
+  LCD, call the constructor with 2nd parameter deviceDetect=1. E.g:
+     LiquidTWI2 lcd(0x20,1);
+  When enabled, if the device is not detected at the specified address when
+  begin() is called, then the rest of the function calls become NOOPs
 
   Note that the library can switch modes at runtime. Simply call setMCPType(),
   followed by begin().
@@ -90,4 +100,4 @@ For more information see
   of LCD module, and select the type from EEPROM.
 
   For memory-constrained projects, disable the unnecessary support by
-  commenting out the corresponding MCP230xx in LiquidTWI2.h
+  commenting out the corresponding MCP230xx in LiquidTWI2.h, and DETECT_DEVICE

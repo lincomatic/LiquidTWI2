@@ -16,6 +16,9 @@
 #include <string.h>
 #include <inttypes.h>
 #include <Wire.h>
+extern "C" { 
+#include "utility/twi.h"  // from Wire library, so we can do bus scanning
+}
 #if defined(ARDUINO) && (ARDUINO >= 100) //scl
 #include "Arduino.h"
 #else
@@ -87,7 +90,11 @@ static inline uint8_t wirerecv(void) {
 // for when the sketch calls begin(), except configuring the expander, which
 // is required by any setup.
 
-LiquidTWI2::LiquidTWI2(uint8_t i2cAddr) {
+LiquidTWI2::LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice) {
+  // if detectDevice != 0, set _deviceDetected to 2 to flag that we should
+  // scan for it in begin()
+  _deviceDetected = detectDevice ? 2 : 1;
+
   //  if (i2cAddr > 7) i2cAddr = 7;
   _i2cAddr = i2cAddr; // transfer this function call's number into our internal class state
   _displayfunction = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS; // in case they forget to call begin() at least we have something
@@ -179,6 +186,23 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
     _displayfunction |= LCD_5x10DOTS;
   }
 
+  if (_deviceDetected == 2) { // scan for device
+    uint8_t junk;
+    if (!twi_writeTo(_i2cAddr, &junk, 0, 1
+#if defined(ARDUINO) && (ARDUINO >= 100)
+		     ,0
+#endif
+		     )) {
+      _deviceDetected = 1; // found it
+    }
+    else {
+      _deviceDetected = 0; // not found
+      return;
+    }
+  } 
+
+
+
   //put the LCD into 4 bit mode
   // start with a non-standard command to make it realize we're speaking 4-bit here
   // per LCD datasheet, first command is a single 4-bit burst, 0011.
@@ -249,6 +273,9 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 /********** high level commands, for the user! */
 void LiquidTWI2::clear()
 {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
   delayMicroseconds(2000);  // this command takes a long time!
 }
@@ -261,6 +288,9 @@ void LiquidTWI2::home()
 
 void LiquidTWI2::setCursor(uint8_t col, uint8_t row)
 {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
   if ( row > _numlines ) row = _numlines - 1;    // we count rows starting w/0
   command(LCD_SETDDRAMADDR | (col + row_offsets[row]));
@@ -268,62 +298,98 @@ void LiquidTWI2::setCursor(uint8_t col, uint8_t row)
 
 // Turn the display on/off (quickly)
 void LiquidTWI2::noDisplay() {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   _displaycontrol &= ~LCD_DISPLAYON;
   command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 void LiquidTWI2::display() {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   _displaycontrol |= LCD_DISPLAYON;
   command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
 // Turns the underline cursor on/off
 void LiquidTWI2::noCursor() {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   _displaycontrol &= ~LCD_CURSORON;
   command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 void LiquidTWI2::cursor() {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   _displaycontrol |= LCD_CURSORON;
   command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
 // Turn on and off the blinking cursor
 void LiquidTWI2::noBlink() {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   _displaycontrol &= ~LCD_BLINKON;
   command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 void LiquidTWI2::blink() {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   _displaycontrol |= LCD_BLINKON;
   command(LCD_DISPLAYCONTROL | _displaycontrol);
 }
 
 // These commands scroll the display without changing the RAM
 void LiquidTWI2::scrollDisplayLeft(void) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT);
 }
 void LiquidTWI2::scrollDisplayRight(void) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT);
 }
 
 // This is for text that flows Left to Right
 void LiquidTWI2::leftToRight(void) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   _displaymode |= LCD_ENTRYLEFT;
   command(LCD_ENTRYMODESET | _displaymode);
 }
 
 // This is for text that flows Right to Left
 void LiquidTWI2::rightToLeft(void) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   _displaymode &= ~LCD_ENTRYLEFT;
   command(LCD_ENTRYMODESET | _displaymode);
 }
 
 // This will 'right justify' text from the cursor
 void LiquidTWI2::autoscroll(void) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   _displaymode |= LCD_ENTRYSHIFTINCREMENT;
   command(LCD_ENTRYMODESET | _displaymode);
 }
 
 // This will 'left justify' text from the cursor
 void LiquidTWI2::noAutoscroll(void) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   _displaymode &= ~LCD_ENTRYSHIFTINCREMENT;
   command(LCD_ENTRYMODESET | _displaymode);
 }
@@ -331,6 +397,9 @@ void LiquidTWI2::noAutoscroll(void) {
 // Allows us to fill the first 8 CGRAM locations
 // with custom characters
 void LiquidTWI2::createChar(uint8_t location, uint8_t charmap[]) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   location &= 0x7; // we only have 8 locations 0-7
   command(LCD_SETCGRAMADDR | (location << 3));
   for (int i=0; i<8; i++) {
@@ -356,6 +425,9 @@ inline void LiquidTWI2::write(uint8_t value) {
 /************ low level data pushing commands **********/
 #ifdef MCP23017
 uint8_t LiquidTWI2::readButtons(void) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return 0;
+#endif
   Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
   wiresend(MCP23017_GPIOA);	
   Wire.endTransmission();
@@ -371,6 +443,9 @@ uint8_t LiquidTWI2::readButtons(void) {
 
 // Allows to set the backlight, if the LCD backpack is used
 void LiquidTWI2::setBacklight(uint8_t status) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
 #if defined(MCP23017)&&defined(MCP23008)
   if (_mcpType == LTI_TYPE_MCP23017) {
 #endif

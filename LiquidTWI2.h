@@ -171,9 +171,11 @@ public:
 #ifdef MCP23017
 	uint8_t readButtons();
 #endif
+	void setMCPType(uint8_t mcptype) {
 #if defined(MCP23017)&&defined(MCP23008)
-	void setMCPType(uint8_t mcptype) { _mcpType = mcptype; }
+	  _mcpType = mcptype;
 #endif //defined(MCP23017)&&defined(MCP23008)
+	}
 
 
 private:

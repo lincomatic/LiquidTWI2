@@ -102,7 +102,7 @@ LiquidTWI2::LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice) {
   _mcpType = DEFAULT_TYPE; // default
 #endif
 #ifdef MCP23017
-  _buttonBits = STANDARD_DIRECTIONAL_BUTTONS_BITS;
+  _buttonBits = DEFAULT_BUTTON_BITS;
 #endif  
 }
 

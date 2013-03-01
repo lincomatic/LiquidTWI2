@@ -6,6 +6,9 @@
 
 // for memory-constrained projects, comment out the MCP230xx that doesn't apply
 #define MCP23017 // Adafruit RGB LCD
+#ifdef MCP23017
+//  #define PANELOLU2 // Uncomment if using PANELOLU2. This mode can also be configured by calling: lcd.setMCPType(MCP23017,PANELOLU2_BUTTON_BITS);
+#endif
 #define MCP23008 // Adafruit I2C Backpack
 
 // if DETECT_DEVICE is enabled, then when constructor's detectDevice != 0
@@ -25,7 +28,7 @@
 #define VIOLET 0x5
 #define WHITE 0x7 
 
-// Standard button bits
+// Standard directional button bits
 #define BUTTON_UP 0x08
 #define BUTTON_DOWN 0x04
 #define BUTTON_LEFT 0x10
@@ -34,12 +37,18 @@
 
 #define STANDARD_DIRECTIONAL_BUTTONS_BITS (BUTTON_UP|BUTTON_DOWN|BUTTON_LEFT|BUTTON_RIGHT|BUTTON_SELECT)
 
-// Panelolu bits (which has rotary encoder and encoder button)
-#define PANELOLU2_ENCODER_C 0x04
+// Panelolu2 encoder button bits (which has only rotary encoder and encoder button)
+#define PANELOLU2_ENCODER_C 0x04 // == encoder button
 #define PANELOLU2_ENCODER_B 0x02
 #define PANELOLU2_ENCODER_A 0x01
 
 #define PANELOLU2_BUTTON_BITS (PANELOLU2_ENCODER_C|PANELOLU2_ENCODER_B|PANELOLU2_ENCODER_A)
+
+#ifdef PANELOLU2
+  #define DEFAULT_BUTTON_BITS PANELOLU2_BUTTON_BITS
+#else
+  #define DEFAULT_BUTTON_BITS STANDARD_DIRECTIONAL_BUTTONS_BITS
+#endif 
 
 #define MCP23008_ADDRESS 0x20
 
@@ -169,7 +178,7 @@ public:
   //make some noise
   void buzz(long,uint8_t);
 #endif
-	void setMCPType(uint8_t mcptype, uint8_t buttonBits = STANDARD_DIRECTIONAL_BUTTONS_BITS) {
+	void setMCPType(uint8_t mcptype, uint8_t buttonBits = DEFAULT_BUTTON_BITS) {
 #if defined(MCP23017)&&defined(MCP23008)
 	  _mcpType = mcptype;
 #endif //defined(MCP23017)&&defined(MCP23008)

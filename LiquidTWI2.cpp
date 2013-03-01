@@ -30,7 +30,7 @@ extern "C" {
 // bit pattern for the burstBits function is
 //
 //  B7 B6 B5 B4 B3 B2 B1 B0 A7 A6 A5 A4 A3 A2 A1 A0 - MCP23017 
-//  RS RW EN D4 D5 D6 D7 B  G  R     B4 B3 B2 B1 B0 
+//  RS RW EN D4 D5 D6 D7 LB LG LR BZ B4 B3 B2 B1 B0 
 //  15 14 13 12 11 10 9  8  7  6  5  4  3  2  1  0  
 #define M17_BIT_RS 0x8000
 #define M17_BIT_RW 0x4000
@@ -42,9 +42,7 @@ extern "C" {
 #define M17_BIT_LB 0x0100
 #define M17_BIT_LG 0x0080
 #define M17_BIT_LR 0x0040
-#ifdef PANELOLU2
-  #define M17_BIT_BZ 0x0020 //Added a buzzer on this pin
-#endif
+#define M17_BIT_BZ 0x0020 //Added a buzzer on this pin
 #define M17_BIT_B4 0x0010
 #define M17_BIT_B3 0x0008
 #define M17_BIT_B2 0x0004
@@ -103,6 +101,9 @@ LiquidTWI2::LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice) {
 #if defined(MCP23017)&&defined(MCP23008)
   _mcpType = DEFAULT_TYPE; // default
 #endif
+#ifdef MCP23017
+  _buttonBits = STANDARD_DIRECTIONAL_BUTTONS_BITS;
+#endif  
 }
 
 void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
@@ -436,11 +437,7 @@ uint8_t LiquidTWI2::readButtons(void) {
   Wire.endTransmission();
   
   Wire.requestFrom(MCP23017_ADDRESS | _i2cAddr, 1);
-  #ifdef PANELOLU2
-     return ~wirerecv() & (uint8_t)(M17_BIT_B2|M17_BIT_B1|M17_BIT_B0);
-  #else
-  return ~wirerecv() & (uint8_t)(M17_BIT_B4|M17_BIT_B3|M17_BIT_B2|M17_BIT_B1|M17_BIT_B0);
-  #endif
+  return ~wirerecv() & _buttonBits;
 }
 #endif // MCP23017
 
@@ -595,11 +592,8 @@ void LiquidTWI2::burstBits8(uint8_t value) {
 }
 #endif // MCP23008
 
-
-
+#ifdef MCP23017
 //direct access to the registers for interrupt setting and reading, also the tone function using buzzer pin
-#ifdef PANELOLU2
-//check registers
 uint8_t LiquidTWI2::readRegister(uint8_t reg) {
   // read a register
   Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
@@ -611,7 +605,6 @@ uint8_t LiquidTWI2::readRegister(uint8_t reg) {
 }
 
 //set registers
-
 void LiquidTWI2::setRegister(uint8_t reg, uint8_t value) {
     Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
     wiresend(reg);
@@ -619,7 +612,7 @@ void LiquidTWI2::setRegister(uint8_t reg, uint8_t value) {
     Wire.endTransmission();
 }
 
-//cycle the buzzer pin at a cetian frequency for a certain duration (ms) and at a certain freq (hz)
+//cycle the buzzer pin at a certain frequency (hz) for a certain duration (ms) 
 void LiquidTWI2::buzz(long duration, uint8_t freq) {
   int currentRegister = 0;
   // read gpio register
@@ -646,5 +639,4 @@ void LiquidTWI2::buzz(long duration, uint8_t freq) {
         elapsed_time += (period);
    }
 }
-
-#endif PANELOLU2
+#endif //MCP23017

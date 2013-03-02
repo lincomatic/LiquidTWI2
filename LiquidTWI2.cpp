@@ -610,7 +610,7 @@ void LiquidTWI2::setRegister(uint8_t reg, uint8_t value) {
 }
 
 //cycle the buzzer pin at a certain frequency (hz) for a certain duration (ms) 
-void LiquidTWI2::buzz(long duration, uint8_t freq) {
+void LiquidTWI2::buzz(long duration, uint16_t freq) {
   int currentRegister = 0;
   // read gpio register
   Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
@@ -620,7 +620,7 @@ void LiquidTWI2::buzz(long duration, uint8_t freq) {
   Wire.requestFrom(MCP23017_ADDRESS | _i2cAddr, 1);
   currentRegister = wirerecv();
   duration *=1000; //convert from ms to us
-  int period = 1000000 / freq; // period in us
+  long period = 1000000 / freq; // period in us
   long elapsed_time = 0;
   while (elapsed_time < duration)
   {

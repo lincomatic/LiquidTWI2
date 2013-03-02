@@ -37,7 +37,8 @@
 #define PANELOLU2_ENCODER_B 0x02
 #define PANELOLU2_ENCODER_A 0x01
 
-// readButtons() will only return these bit values
+// readButtons() will only return these bit values 
+// (the Panelolu2 encoder bits are subset of these bits)
 #define ALL_BUTTON_BITS (BUTTON_UP|BUTTON_DOWN|BUTTON_LEFT|BUTTON_RIGHT|BUTTON_SELECT)
 
 #define MCP23008_ADDRESS 0x20
@@ -166,7 +167,7 @@ public:
   //set registers
   void setRegister(uint8_t, uint8_t);
   //make some noise
-  void buzz(long,uint8_t);
+  void buzz(long,uint16_t);
 #endif
 	void setMCPType(uint8_t mcptype) {
 #if defined(MCP23017)&&defined(MCP23008)

@@ -101,9 +101,6 @@ LiquidTWI2::LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice) {
 #if defined(MCP23017)&&defined(MCP23008)
   _mcpType = DEFAULT_TYPE; // default
 #endif
-#ifdef MCP23017
-  _buttonBits = DEFAULT_BUTTON_BITS;
-#endif  
 }
 
 void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
@@ -437,7 +434,7 @@ uint8_t LiquidTWI2::readButtons(void) {
   Wire.endTransmission();
   
   Wire.requestFrom(MCP23017_ADDRESS | _i2cAddr, 1);
-  return ~wirerecv() & _buttonBits;
+  return ~wirerecv() & ALL_BUTTON_BITS;
 }
 #endif // MCP23017
 
@@ -623,7 +620,7 @@ void LiquidTWI2::buzz(long duration, uint8_t freq) {
   Wire.requestFrom(MCP23017_ADDRESS | _i2cAddr, 1);
   currentRegister = wirerecv();
   duration *=1000; //convert from ms to us
-  int period = (1.0 / freq) * 1000000; //*1000000 as the delay is in us
+  int period = 1000000 / freq; // period in us
   long elapsed_time = 0;
   while (elapsed_time < duration)
   {
@@ -636,6 +633,7 @@ void LiquidTWI2::buzz(long duration, uint8_t freq) {
         wiresend(MCP23017_GPIOA);
         wiresend(currentRegister &= ~M17_BIT_BZ);
         while(Wire.endTransmission());
+        delayMicroseconds(period / 2);
         elapsed_time += (period);
    }
 }

@@ -19,9 +19,13 @@ For more information see
  Panelolu2 usage see
  http://blog.think3dprint3d.com/2012/12/mcp23017-i2c.html
 
-  Version 1.2.3
+  Version 1.2.4
 
   Changelog:
+
+  * 1.2.4 / 201300409 SCL
+  buzz() fixes from buildrob
+
   * 1.2.3 / 20130322 SCL
   PANELOLU2 support cleanup and always enabled when MCP23017 by buildrob
   buzz() now works for Panucatt Viki as well
@@ -30,7 +34,6 @@ For more information see
   make setMCPType() a no-op when only one MCPxxxx defined instead
   of removing it
 
-  Changelog:
   * 1.2.1 / 20130102 SCL
   disable PANELOLU2 by default
 

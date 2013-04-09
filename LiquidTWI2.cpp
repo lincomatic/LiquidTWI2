@@ -610,31 +610,33 @@ void LiquidTWI2::setRegister(uint8_t reg, uint8_t value) {
 }
 
 //cycle the buzzer pin at a certain frequency (hz) for a certain duration (ms) 
+//note: a 100Khz TWI/I2C bus on a 16Mhz Arduino will max out at around 1500Hz freq
 void LiquidTWI2::buzz(long duration, uint16_t freq) {
   int currentRegister = 0;
+
   // read gpio register
   Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
   wiresend(MCP23017_GPIOA);	
   Wire.endTransmission();
-  
   Wire.requestFrom(MCP23017_ADDRESS | _i2cAddr, 1);
   currentRegister = wirerecv();
+  
   duration *=1000; //convert from ms to us
-  long period = 1000000 / freq; // period in us
-  long elapsed_time = 0;
-  while (elapsed_time < duration)
+  unsigned long cycletime = 1000000UL / freq; // period in us
+  unsigned long cycles = (unsigned long)duration / cycletime;
+  unsigned long ontime;
+  while (cycles-- > 0)
   {
-        Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
-        wiresend(MCP23017_GPIOA);
-        wiresend(currentRegister |= M17_BIT_BZ);
-        while(Wire.endTransmission());
-        delayMicroseconds(period / 2);
-        Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
-        wiresend(MCP23017_GPIOA);
-        wiresend(currentRegister &= ~M17_BIT_BZ);
-        while(Wire.endTransmission());
-        delayMicroseconds(period / 2);
-        elapsed_time += (period);
-   }
-}
-#endif //MCP23017
+    ontime = micros();
+    Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
+    wiresend(MCP23017_GPIOA);
+    wiresend(currentRegister |= M17_BIT_BZ);
+    while(Wire.endTransmission());
+    while((long)(ontime + (cycletime/2) - micros()) > 0);
+    Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);       
+    wiresend(MCP23017_GPIOA);
+    wiresend(currentRegister &= ~M17_BIT_BZ);
+    while(Wire.endTransmission());
+    while((long)(ontime + cycletime - micros()) > 0);
+  }
+}#endif //MCP23017

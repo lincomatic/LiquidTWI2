@@ -134,6 +134,9 @@ public:
 
 	void begin(uint8_t cols, uint8_t rows,uint8_t charsize = LCD_5x8DOTS);
 
+#ifdef DETECT_DEVICE
+	uint8_t LcdDetected() { return _deviceDetected; }
+#endif // DETECT_DEVICE
 	void clear();
 	void home();
 

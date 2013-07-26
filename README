@@ -23,7 +23,10 @@ For more information see
 
   Changelog:
 
-  * 1.2.4 / 201300409 SCL
+  * 1.2.5 / 20130725 SCL
+  added LcdDetected() from Scott Rubin
+
+  * 1.2.4 / 20130409 SCL
   buzz() fixes from buildrob
 
   * 1.2.3 / 20130322 SCL

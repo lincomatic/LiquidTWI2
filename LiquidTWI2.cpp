@@ -15,10 +15,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#if defined (__AVR_ATtiny84__) || defined(__AVR_ATtiny85__) || (__AVR_ATtiny2313__)
+#include "TinyWireM.h"
+#define Wire TinyWireM
+#else
 #include <Wire.h>
-extern "C" { 
-#include "utility/twi.h"  // from Wire library, so we can do bus scanning
-}
+#endif
 #if defined(ARDUINO) && (ARDUINO >= 100) //scl
 #include "Arduino.h"
 #else
@@ -88,12 +90,14 @@ static inline uint8_t wirerecv(void) {
 // for when the sketch calls begin(), except configuring the expander, which
 // is required by any setup.
 
-LiquidTWI2::LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice) {
+LiquidTWI2::LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice, uint8_t backlightInverted) {
   // if detectDevice != 0, set _deviceDetected to 2 to flag that we should
   // scan for it in begin()
 #ifdef DETECT_DEVICE
   _deviceDetected = detectDevice ? 2 : 1;
 #endif
+
+  _backlightInverted = backlightInverted;
 
   //  if (i2cAddr > 7) i2cAddr = 7;
   _i2cAddr = i2cAddr; // transfer this function call's number into our internal class state
@@ -111,6 +115,7 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 
   Wire.begin();
 
+  uint8_t result;
 #if defined(MCP23017)&&defined(MCP23008)
   if (_mcpType == LTI_TYPE_MCP23017) {
 #endif
@@ -120,30 +125,70 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
     Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
     wiresend(MCP23017_IODIRA);
     wiresend(0xFF);  // all inputs on port A
-    Wire.endTransmission();
+    result = Wire.endTransmission();
+#ifdef DETECT_DEVICE
+    if (result) {
+        if (_deviceDetected == 2) {
+          _deviceDetected = 0;
+          return;
+        }
+    }
+#endif 
 	  
     Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
     wiresend(MCP23017_IODIRB);
     wiresend(0xFF);  // all inputs on port B
-    Wire.endTransmission();
+    result = Wire.endTransmission();
+#ifdef DETECT_DEVICE
+    if (result) {
+        if (_deviceDetected == 2) {
+          _deviceDetected = 0;
+          return;
+        }
+    }
+#endif 
     */
 
     // now set up input/output pins
     Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
     wiresend(MCP23017_IODIRA);
     wiresend(0x1F); // buttons input, all others output
-    Wire.endTransmission();
+    result = Wire.endTransmission();
+#ifdef DETECT_DEVICE
+    if (result) {
+        if (_deviceDetected == 2) {
+          _deviceDetected = 0;
+          return;
+        }
+    }
+#endif 
     
     // set the button pullups
     Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
     wiresend(MCP23017_GPPUA);
     wiresend(0x1F);	
-    Wire.endTransmission();
+    result = Wire.endTransmission();
+#ifdef DETECT_DEVICE
+    if (result) {
+        if (_deviceDetected == 2) {
+          _deviceDetected = 0;
+          return;
+        }
+    }
+#endif 
     
     Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
     wiresend(MCP23017_IODIRB);
     wiresend(0x00); // all pins output
-    Wire.endTransmission();
+    result = Wire.endTransmission();
+#ifdef DETECT_DEVICE
+    if (result) {
+        if (_deviceDetected == 2) {
+          _deviceDetected = 0;
+          return;
+        }
+    }
+#endif 
 #endif // MCP23017
 #if defined(MCP23017)&&defined(MCP23008)
   }
@@ -163,16 +208,37 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
     wiresend(0x00);
     wiresend(0x00);
     wiresend(0x00);	
-    Wire.endTransmission();
+    result = Wire.endTransmission();
+#ifdef DETECT_DEVICE
+    if (result) {
+        if (_deviceDetected == 2) {
+          _deviceDetected = 0;
+          return;
+        }
+    }
+#endif 
 	  
     // now we set the GPIO expander's I/O direction to output since it's soldered to an LCD output.
     Wire.beginTransmission(MCP23008_ADDRESS | _i2cAddr);
     wiresend(MCP23008_IODIR);
     wiresend(0x00); // all output: 00000000 for pins 1...8
-    Wire.endTransmission();
+    result = Wire.endTransmission();
+#ifdef DETECT_DEVICE
+    if (result) {
+        if (_deviceDetected == 2) {
+          _deviceDetected = 0;
+          return;
+        }
+    }
+#endif 
 #endif // MCP23008
 #if defined(MCP23017)&&defined(MCP23008)
   }
+#endif
+
+#ifdef DETECT_DEVICE
+  // If we haven't failed by now, then we pass
+  if (_deviceDetected == 2) _deviceDetected = 1;
 #endif
 
   if (lines > 1) {
@@ -185,24 +251,6 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
   if ((dotsize != 0) && (lines == 1)) {
     _displayfunction |= LCD_5x10DOTS;
   }
-
-#ifdef DETECT_DEVICE
-  if (_deviceDetected == 2) { // scan for device
-    uint8_t junk;
-    if (!twi_writeTo(_i2cAddr, &junk, 0, 1
-#if defined(ARDUINO) && (ARDUINO >= 100)
-		     ,0
-#endif
-		     )) {
-      _deviceDetected = 1; // found it
-    }
-    else {
-      _deviceDetected = 0; // not found
-      return;
-    }
-  } 
-#endif // DETECT_DEVICE
-
 
   //put the LCD into 4 bit mode
   // start with a non-standard command to make it realize we're speaking 4-bit here
@@ -414,11 +462,17 @@ inline void LiquidTWI2::command(uint8_t value) {
 }
 #if defined(ARDUINO) && (ARDUINO >= 100) //scl
 inline size_t LiquidTWI2::write(uint8_t value) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return 1;
+#endif
   send(value, HIGH);
   return 1;
 }
 #else
 inline void LiquidTWI2::write(uint8_t value) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   send(value, HIGH);
 }
 #endif
@@ -443,6 +497,7 @@ void LiquidTWI2::setBacklight(uint8_t status) {
 #ifdef DETECT_DEVICE
   if (!_deviceDetected) return;
 #endif
+  if (_backlightInverted) status ^= 0x7;
 #if defined(MCP23017)&&defined(MCP23008)
   if (_mcpType == LTI_TYPE_MCP23017) {
 #endif

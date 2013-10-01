@@ -190,7 +190,7 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
   if (_deviceDetected == 2) { // scan for device
     uint8_t junk;
     if (!twi_writeTo(_i2cAddr, &junk, 0, 1
-#if defined(ARDUINO) && (ARDUINO >= 100)
+#if defined(ARDUINO) && (ARDUINO > 100)
 		     ,0
 #endif
 		     )) {

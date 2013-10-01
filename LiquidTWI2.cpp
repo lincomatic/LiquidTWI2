@@ -15,10 +15,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#if defined (__AVR_ATtiny84__) || defined(__AVR_ATtiny85__) || (__AVR_ATtiny2313__)
+#undef DETECT_DEVICE
+#include "TinyWireM.h"
+#define Wire TinyWireM
+#else
 #include <Wire.h>
 extern "C" { 
 #include "utility/twi.h"  // from Wire library, so we can do bus scanning
 }
+#endif
 #if defined(ARDUINO) && (ARDUINO >= 100) //scl
 #include "Arduino.h"
 #else
@@ -88,12 +94,14 @@ static inline uint8_t wirerecv(void) {
 // for when the sketch calls begin(), except configuring the expander, which
 // is required by any setup.
 
-LiquidTWI2::LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice) {
+LiquidTWI2::LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice, uint8_t backlightInverted) {
   // if detectDevice != 0, set _deviceDetected to 2 to flag that we should
   // scan for it in begin()
 #ifdef DETECT_DEVICE
   _deviceDetected = detectDevice ? 2 : 1;
 #endif
+
+  _backlightInverted = backlightInverted;
 
   //  if (i2cAddr > 7) i2cAddr = 7;
   _i2cAddr = i2cAddr; // transfer this function call's number into our internal class state
@@ -414,11 +422,17 @@ inline void LiquidTWI2::command(uint8_t value) {
 }
 #if defined(ARDUINO) && (ARDUINO >= 100) //scl
 inline size_t LiquidTWI2::write(uint8_t value) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return 1;
+#endif
   send(value, HIGH);
   return 1;
 }
 #else
 inline void LiquidTWI2::write(uint8_t value) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   send(value, HIGH);
 }
 #endif
@@ -443,6 +457,7 @@ void LiquidTWI2::setBacklight(uint8_t status) {
 #ifdef DETECT_DEVICE
   if (!_deviceDetected) return;
 #endif
+  if (_backlightInverted) status ^= 0x7;
 #if defined(MCP23017)&&defined(MCP23008)
   if (_mcpType == LTI_TYPE_MCP23017) {
 #endif

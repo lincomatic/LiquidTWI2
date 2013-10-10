@@ -130,7 +130,7 @@
 
 class LiquidTWI2 : public Print {
 public:
-	LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice=0);
+	LiquidTWI2(uint8_t i2cAddr,uint8_t detectDevice=0,uint8_t backlightInverted=0);
 
 	void begin(uint8_t cols, uint8_t rows,uint8_t charsize = LCD_5x8DOTS);
 
@@ -195,6 +195,7 @@ private:
 	uint8_t _displaymode;
 	uint8_t _numlines,_currline;
 	uint8_t _i2cAddr;
+	uint8_t _backlightInverted;
 #ifdef DETECT_DEVICE
 	uint8_t _deviceDetected;
 #endif // DETECT_DEVICE

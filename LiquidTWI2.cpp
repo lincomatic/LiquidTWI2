@@ -7,6 +7,7 @@
    LiquidTWI by Matt Falcon (FalconFour) / http://falconfour.com
    logic gleaned from Adafruit RGB LCD Shield library
    Panelolu2 support by Tony Lock / http://blog.think3dprint3d.com
+   enhancements by Nick Sayer / https://github.com/nsayer
 
   Compatible with Adafruit I2C LCD backpack (MCP23008) and
   Adafruit RGB LCD Shield

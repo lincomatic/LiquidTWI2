@@ -20,9 +20,12 @@ For more information see
  Panelolu2 usage see
  http://blog.think3dprint3d.com/2012/12/mcp23017-i2c.html
 
-  Version 1.2.4
+  Version 1.2.6
 
   Changelog:
+
+  * 1.2.6 / 20140220 SCL
+  added device detected guard to home()
 
   * 1.2.5 / 20130725 SCL
   added LcdDetected() from Scott Rubin

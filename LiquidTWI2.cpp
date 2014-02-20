@@ -671,6 +671,9 @@ void LiquidTWI2::setRegister(uint8_t reg, uint8_t value) {
 //cycle the buzzer pin at a certain frequency (hz) for a certain duration (ms) 
 //note: a 100Khz TWI/I2C bus on a 16Mhz Arduino will max out at around 1500Hz freq
 void LiquidTWI2::buzz(long duration, uint16_t freq) {
+#ifdef DETECT_DEVICE
+  if (!_deviceDetected) return;
+#endif
   int currentRegister = 0;
 
   // read gpio register

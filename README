@@ -25,7 +25,7 @@ For more information see
   Changelog:
 
   * 1.2.6 / 20140220 SCL
-  added device detected guard to home()
+  added device detected guard to home() & buzz()
 
   * 1.2.5 / 20130725 SCL
   added LcdDetected() from Scott Rubin

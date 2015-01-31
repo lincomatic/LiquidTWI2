@@ -27,8 +27,8 @@
 
 #include <Wire.h>
 #include <LiquidTWI2.h>
-// I2C address 0 ... change the address if your board uses a different one
-LiquidTWI2 lcd(0);
+// I2C address 0x20 ... change the address if your board uses a different one
+LiquidTWI2 lcd(0x20);
 
 byte digit = 0;
 unsigned long freqMult = 0;

@@ -25,8 +25,8 @@
 #include <Wire.h>
 #include <LiquidTWI2.h>
 
-// Connect via i2c, address 0 (A0-A2 not jumpered)
-LiquidTWI2 lcd(0);
+// Connect via i2c, address 0x20 (A0-A2 not jumpered)
+LiquidTWI2 lcd(0x20);
 
 void setup() {
   // set the LCD type

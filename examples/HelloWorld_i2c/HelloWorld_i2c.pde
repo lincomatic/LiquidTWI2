@@ -6,18 +6,26 @@
  This sketch prints "Hello World!" to the LCD
  and shows the time.
  
-  The circuit:
+  The circuit for Duemilanove
  * 5V to Arduino 5V pin
  * GND to Arduino GND pin
  * CLK to Analog #5
  * DAT to Analog #4
+
+  For other boards, use the following chart (CLK=SCL,DAT=SDA)
+  Board      I2C / TWI pins
+  ---------  --------------------------
+  Uno, Yun   A4 (SDA), A5 (SCL)
+  Mega2560   20 (SDA), 21 (SCL)
+  Leonardo    2 (SDA),  3 (SCL)
+  Due        20 (SDA), 21 (SCL)
 */
 
 // include the library code:
 #include <Wire.h>
 #include <LiquidTWI2.h>
 
-// Connect via i2c, default address #0 (A0-A2 not jumpered)
+// Connect via i2c, address 0 (A0-A2 not jumpered)
 LiquidTWI2 lcd(0);
 
 void setup() {

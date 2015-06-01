@@ -61,7 +61,8 @@ void loop() {
     lcd.print(millis() - minitimer,DEC);
     lcd.print("msec");
   }
-  while (++freqMult > 16) delay(50);
+  delay(1000);
+  ++freqMult;
   bitSet(TWSR, TWPS0);
   lcd.clear();
   lcd.print("Freq = ");

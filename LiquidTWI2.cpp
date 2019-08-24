@@ -694,12 +694,12 @@ void LiquidTWI2::buzz(long duration, uint16_t freq) {
         wiresend(MCP23017_GPIOA);
         wiresend(currentRegister |= M17_BIT_BZ);
         while(Wire.endTransmission());
-    while((long)(ontime + (cycletime/2) - micros()) > 0);
+        while((long)(ontime + (cycletime/2) - micros()) > 0);
         Wire.beginTransmission(MCP23017_ADDRESS | _i2cAddr);
         wiresend(MCP23017_GPIOA);
         wiresend(currentRegister &= ~M17_BIT_BZ);
         while(Wire.endTransmission());
-    while((long)(ontime + cycletime - micros()) > 0);
+        while((long)(ontime + cycletime - micros()) > 0);
    }
 }
 #endif //MCP23017

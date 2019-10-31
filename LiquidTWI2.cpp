@@ -117,6 +117,21 @@ void LiquidTWI2::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
   Wire.begin();
 
   uint8_t result;
+
+  if (cols == 20 && lines == 4 ) {
+	  _row_offsets [0] = 0x00;
+  	  _row_offsets [1] = 0x40;
+	  _row_offsets [2] = 0x14;
+  	  _row_offsets [3] = 0x54;	  
+  } else{
+	  _row_offsets [0] = 0x00;
+	  _row_offsets [1] = 0x40;	  
+	  _row_offsets [2] = 0x10;
+	  _row_offsets [3] = 0x50;	  	  
+  }
+
+
+
 #if defined(MCP23017)&&defined(MCP23008)
   if (_mcpType == LTI_TYPE_MCP23017) {
 #endif
@@ -344,9 +359,8 @@ void LiquidTWI2::setCursor(uint8_t col, uint8_t row)
 #ifdef DETECT_DEVICE
   if (!_deviceDetected) return;
 #endif
-  int row_offsets[] = { 0x00, 0x40, 0x10, 0x50 };
   if ( row > _numlines ) row = _numlines - 1;    // we count rows starting w/0
-  command(LCD_SETDDRAMADDR | (col + row_offsets[row]));
+  command(LCD_SETDDRAMADDR | (col + _row_offsets[row]));
 }
 
 // Turn the display on/off (quickly)

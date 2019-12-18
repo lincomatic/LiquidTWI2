@@ -196,6 +196,7 @@ private:
 	uint8_t _numlines,_currline;
 	uint8_t _i2cAddr;
 	uint8_t _backlightInverted;
+	uint16_t _row_offsets[4];
 #ifdef DETECT_DEVICE
 	uint8_t _deviceDetected;
 #endif // DETECT_DEVICE

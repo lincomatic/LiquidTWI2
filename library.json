@@ -1,0 +1,12 @@
+{
+  "name": "LiquidTWI2",
+  "keywords": "i2c, lcd, rgb",
+  "description": "A lean, high speed I2C LCD Library for Arduino, which supports MCP23008 and MCP23017",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lincomatic/LiquidTWI2.git"
+  },
+  "version": "1.2.7",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
